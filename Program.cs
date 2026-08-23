@@ -27,6 +27,8 @@ app.MapPost("/api/orders", async (AppDbContext context, Order order)=>
     return Results.Created($"/api/orders/{order.ID}", order);
 });
 
+//app.MapGet("/api/orders/{id}", async (AppDbContext context, int id) =>
+//app.MapGet("/api/orders/{id}", async (AppDbContext context, int id) =>
 app.MapGet("/api/orders/{id}", async (AppDbContext context, int id) =>
 {
     var order = await context.Orders.FirstOrDefaultAsync(o=> o.ID == id);
