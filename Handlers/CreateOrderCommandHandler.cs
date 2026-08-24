@@ -1,19 +1,29 @@
 using System;
 using System.Threading.Tasks;
-using OrderAPI.Dtos;      // Explicitly tells the compiler where OrderDto is 
+using FluentValidation;
+using OrderAPI.Dtos;      // Explicitly tells the compiler where OrderDto is
 using OrderAPI.Commands;
 
 namespace OrderAPI.Handlers;
-public class createOrderCommandHandler: ICommandHandler<CreateOrderCommand, OrderDto>
+public class CreateOrderCommandHandler: ICommandHandler<CreateOrderCommand, OrderDto>
 { 
     private readonly AppDbContext _context;
-    public createOrderCommandHandler(AppDbContext context)
+    private readonly IValidator<CreateOrderCommand> _validator;
+    public CreateOrderCommandHandler(AppDbContext context, IValidator<CreateOrderCommand> validator)
     {
         _context = context;
+        _validator = validator;
     }
     public async Task<OrderDto>HandleAsync(CreateOrderCommand command)
     {
-          var order = new Order
+
+        var validationResult = await _validator.ValidateAsync(command);
+        if (!validationResult.IsValid)
+        {
+            throw new ValidationException(validationResult.Errors);
+        }
+
+        var order = new Order
         {
             FirstName = command.FirstName,
             LastName = command.LastName,
